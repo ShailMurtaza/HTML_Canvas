@@ -1,0 +1,248 @@
+<!--
+LINE# 148 update
+issue is in update method of Circle class
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collision</title>
+    <style>
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+        }
+        canvas {
+            margin: 2px 2px 0 2px;
+            border: 5px solid black;
+        }
+        .center {
+            margin-left: 45%;
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+    <button class="center" onclick="toggleSettings()">TOGGLE SETTINGS</button>
+    <br>
+    <div id="settings" class="center" style="display: none;position:absolute">
+        <b>RADIUS:</b> <input type="range" id="inRadius" value="30" min="20" max="60" step="5" onmousemove="UpdateRadius()" onclick="UpdateRadius()" onchange="UpdateRadius()">
+        <span id="radiusShow"></span>
+        <br>
+        <b>SPEED:</b> <input type="range" id="inSpeed" value="4" min="0" max="16" step="1" onmousemove="UpdateSpeed()" onclick="UpdateSpeed()" onchange="UpdateSpeed()">
+        <span id="speedShow"></span>
+        <br>
+        <button onclick="circles = []" style="width: 100%">CLEAR</button> <br>
+    </div>
+    <canvas></canvas>
+
+
+    <script type="text/javascript">
+        var settings = document.getElementById('settings');
+        function toggleSettings() {
+            if (settings.style.display == "none")
+                settings.style.display = "block"
+            else
+                settings.style.display = "none"
+        }
+    </script>
+
+
+    <script>
+        var inRadius = document.getElementById("inRadius");
+        var radiusShow = document.getElementById("radiusShow");
+        var radius = parseInt(inRadius.value);
+        radiusShow.innerText = radius;
+
+        var inSpeed = document.getElementById("inSpeed");
+        var speedShow = document.getElementById("speedShow");
+        var speed = parseInt(inSpeed.value);
+        speedShow.innerText = speed;
+
+        // get canvas container and give appropriate HEIGHT and WIDTH
+        var canvas = document.querySelector("canvas");
+        canvas.width = window.innerWidth - 18;
+        canvas.height = window.innerHeight - 45;
+        var c = canvas.getContext("2d");
+
+
+        var mouse = {
+            x: undefined,
+            y: undefined
+        }
+
+        // Calculate distance between two points
+        function distance(x1, y1, x2, y2) {
+            x = x2 - x1
+            y = y2 - y1
+            dis = Math.sqrt( Math.pow(x, 2) + Math.pow(y, 2) )
+            return dis
+        }
+
+        // Everytime new Circle is created new color will be given as colorIndex is incerementing
+        var colorIndex = 0;
+        function getColor() {
+            // let colors = ["rgba(255, 190, 11, 0.4)", "rgba(251, 86, 7, 0.4)", "rgba(255, 0, 110, 0.4)", "rgba(131, 56, 236, 0.4)", "rgba(58, 134, 255, 0.4)"];
+            let colors = ["#ffbe0b", "#fb5607", "#ff006e", "#8338ec", "#3a86ff"];
+            color = colors[colorIndex];
+            colorIndex++;
+            if (colorIndex >= 5) {colorIndex = 0;}
+            return color;
+        }
+
+        class Circle {
+            constructor(x, y, dx, dy, radius, pointer) {
+                this.x = x;
+                this.y = y;
+                this.dx = dx; // Velocity along X-axis
+                this.dy = dy; // Velocity along Y-axis
+                this.radius = radius;
+                this.pointer = pointer; // BOOL to check if circle is pointer or not
+                this.direction = {x: 1, y: 1};
+
+                if (!this.pointer) this.fillColor = getColor() // GIVE fill color to circle if it is not pointer
+            }
+
+            // if circle is getting out of canvas from right, left, bottom or top then change coordinates according to canvas
+            checkBoundry() {
+                // RIGHT
+                if (this.x + this.radius >= canvas.width) {
+                    this.direction.x = -this.direction.x
+                    this.x = canvas.width - this.radius
+                }
+                // LEFT
+                else if (this.x - this.radius <= 0) {
+                    this.direction.x = -this.direction.x
+                    this.x = this.radius
+                }
+                // TOP
+                if (this.y + this.radius >= canvas.height) {
+                    this.direction.y = -this.direction.y
+                    this.y = canvas.height - this.radius
+                }
+                // BOTTOM
+                else if (this.y - this.radius <= 0) {
+                    this.direction.y = -this.direction.y
+                    this.y = this.radius
+                }
+            }
+            // DRAW the circle according to new X and Y coordinates
+            draw() {
+                c.beginPath()
+                c.arc(this.x, this.y, this.radius, 0, Math.PI*2, false)
+                // If circle is not pointer then fill it
+                if (!this.pointer) {
+                    c.fillStyle = this.fillColor
+                    c.fill()
+                }
+                // Otherwise make border to make it visible
+                else {
+                    c.stroke()
+                }
+            }
+            // Update circle at every frame
+            update() {
+                this.x += this.dx * this.direction.x
+                this.y += this.dy * this.direction.y
+
+                // Check collision between CIRCLES
+                circles.forEach((circle) => {
+                    let dist = distance( this.x,  this.y, circle.x, circle.y)
+                    if ( this !=circle && dist - (circle.radius + this.radius) < 0) {
+                        // this.dx = -this.dx
+                        // this.dy = -this.dy
+                        this.direction.x = -this.direction.x
+                        this.direction.y = -this.direction.y
+                    }
+                });
+                this.checkBoundry()
+                this.draw()
+            }
+
+            // Move/change Circle's coordinates according to given parameters
+            // When ever mouse move this function will be called
+            // Meant to be just for Pointer Circle
+            move (x, y) {
+                this.x = x
+                this.y = y
+            }
+
+            // Resize circle according to given radius
+            // This function will be called everytime radius will be changed using HTML input type range
+            // Meant to be just for Pointer Circle
+            resize(radius) {
+                this.radius = radius
+            }
+        }
+
+        // Array of all circles
+        circles = []
+        // Create Circle around the mouse as pointer or reference to create other circles
+        var mouse_rad = new Circle(mouse.x, mouse.y, 0, 0, radius, true)
+        function Animate() {
+            // requestAnimationFrame(Animate)
+            c.clearRect(0, 0, canvas.width, canvas.height)
+
+            circles.forEach((circle)=> {circle.update()}) // Update every circle
+            mouse_rad.draw() // Draw the circle pointer
+        }
+
+        // Whenever use clicks new circle will be created
+        canvas.addEventListener("mousedown", (event)=> {
+            let x = event.x; // X coordinate or mouse
+            let y = event.y; // X coordinate or mouse
+            let makeCircle = true;
+            // Create a circle only if circle is smaller than canvas
+            if (radius*2 <= canvas.height && radius*2 <= canvas.width){
+                if (!circles.length) {
+                    makeCircle = true
+                    // var NewCircle = new Circle(x, y, speed, speed, radius, false)
+                    // circles.push(NewCircle)
+                }
+                else {
+                    for (let circle of circles) {
+                        // If another circle already exists in radius of new circle then set makeCircle false
+                        if ( distance(x, y, circle.x, circle.y) - (circle.radius + radius) < 0) {
+                            makeCircle = false;
+                            break;
+                        }
+                    }
+                }
+                if (makeCircle) {
+                    let NewCircle = new Circle(x, y, speed, speed, radius, false)
+                    circles.push(NewCircle)
+                }
+            }
+        })
+
+
+        window.addEventListener("mousemove", (event)=> {
+            // Whenever mouse moves, move the circle pointer according to mouse's coordinates
+            mouse.x = event.x
+            mouse.y = event.y
+
+            mouse_rad.move(mouse.x, mouse.y)
+        })
+
+        // This function will be called whenever radius will be changed using HTML input range
+        function UpdateRadius() {
+            radius = parseInt(inRadius.value)
+            radiusShow.innerText = radius
+            mouse_rad.resize(radius)
+        }
+
+        // This function will be called whenever speed will be changed using HTML input range
+        function UpdateSpeed() {
+            speed = parseInt(inSpeed.value)
+            speedShow.innerText = speed
+        }
+
+        var FPS = 60
+        setInterval(Animate, 1000/FPS);
+    </script>
+</body>
+</html>

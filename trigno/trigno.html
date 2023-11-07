@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+    }
+    html, body {
+        width: 100%;
+        height: 100%;
+    }
+    #canvas {
+        margin: 2px;
+    }
+    .buttons {
+        position: absolute;
+        left: 20%;
+    }
+    button {
+        color: white;
+        padding: 10px;
+        background-color: rgb(47, 47, 255);
+        border: 0;
+        outline: none;
+        cursor: pointer;
+    }
+    button:hover {
+        background-color: blue;
+    }
+    #interval_count {
+        display: inline-block;
+        border: 3px solid blue;
+        background-color: white;
+        /*color: white;*/
+        padding: 5px;
+        margin-top: 5px;
+    }
+</style>
+<body>
+    <div class="buttons">
+        <button onclick="update_graph()">UPDATE</button>
+        <button onclick="start()">START</button>
+        <button onclick="stop()">STOP</button>
+        <button onclick="clear_plane()">CLEAR</button>
+        <button onclick="reset_plane()">RESET</button>
+        <div id="interval_count">0</div>
+    </div>
+    <canvas id="canvas"></canvas>
+    <script src="js.js"></script>
+</body>
+</html>

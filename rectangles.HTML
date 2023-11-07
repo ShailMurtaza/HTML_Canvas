@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<style>
+body {
+	height: 100%;
+	width: 100%;
+	margin: 0;
+}
+
+canvas {
+	border: 2px solid grey;
+	margin: 3px 0.5px 3px;
+}
+
+#top {
+	top: 10px;
+	right: 45%;
+	position: fixed;
+}
+
+</style>
+<BODY>
+
+	<canvas id="canvas"></canvas>
+	<div id="top">
+		<input type="range" id="velocity" value="3" >
+	</div>
+	<script>
+		var canvas = document.getElementById("canvas")
+		canvas.height = window.innerHeight - 15;
+		canvas.width = window.innerWidth - 15;
+		var ctx = canvas.getContext("2d")
+		var colors = [
+				"rgba(150, 255, 00, 0.5)",
+				"rgba(0, 130, 255, 0.5)",
+				"rgba(255, 10, 255, 0.5)",
+				"rgba(175, 100, 255, 0.5)",
+				"rgba(40,  255, 230, 0.5)"
+		]
+		var i = 0
+		var rect_array = [];
+		class Rectangle {
+			constructor(pos, w, h, displacement, color, pointer=false) {
+				this.x = pos.x
+				this.y = pos.y
+				this.h = h
+				this.w = w
+				this.dx = displacement.dx
+				this.dy = displacement.dy
+				this.color = color
+				this.pointer = pointer
+			}
+
+			draw() {
+				if (this.pointer) ctx.strokeRect(this.x, this.y, this.w, this.h)
+				else {
+					ctx.fillStyle = this.color
+					ctx.fillRect(this.x, this.y, this.w, this.h)
+				}
+			}
+
+			move(x, y) {
+				this.x = x
+				this.y = y
+				// this.update()
+			}
+
+			update() {
+				this.x += this.dx
+				this.y += this.dy
+
+				if (this.x + this.w >= canvas.width || this.x <= 0)
+					this.dx *= -1
+				if (this.y + this.h >= canvas.height || this.y <= 0)
+					this.dy *= -1
+				if (this.x + this.w > canvas.width)
+					this.x = canvas.width - this.w
+				else if (this.x < 0) this.x = 0
+
+				if (this.y + this.h > canvas.height)
+					this.y = canvas.height - this.h
+				else if (this.y < 0) this.y = 0
+				this.draw()
+			}
+		}
+
+		function newRect(coor, w, h, disp, color) {
+			let rect = new Rectangle({x: coor.x, y:coor.y}, w, h, {dx: disp.dx, dy: disp.dy}, color)
+			rect_array.push(rect)
+		}
+		
+		function mouseMove(event) {
+			let x = event.clientX - (pointer_rect.w / 2) - 5
+			let y = event.clientY - (pointer_rect.h / 2) - 6
+			pointer_rect.move(x, y)
+		}
+		
+		function mouseClick(event) {
+			i++;
+			i = i % (colors.length - 1)
+			let color = colors[i]
+			let coor = {x: pointer_rect.x, y:pointer_rect.y}
+			let disp = {dx: 5, dy: 3}
+			let rect = newRect(coor, pointer_rect.w, pointer_rect.h, disp, color)
+		}
+
+		var pointer_rect = new Rectangle({x: 0, y:0}, 100, 50, {dx: 0, dy: 0}, 0, true)
+
+
+		function animate() {
+			ctx.clearRect(0, 0, canvas.width, canvas.height)
+			rect_array.forEach((rect)=> {
+				rect.update()
+			})
+			pointer_rect.update()
+			requestAnimationFrame(animate)
+		}
+		requestAnimationFrame(animate)
+		// setInterval(animate, 60/1000)
+		canvas.onmousemove = mouseMove
+		canvas.onclick = mouseClick
+	</script>
+</body>
+</html>
+<!-- 723904
+ AppBy 717675
+ 7834
+-->
+<!-- chk code 41 -->
+

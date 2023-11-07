@@ -1,0 +1,119 @@
+<!-- Started to learn canvas today -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animation</title>
+	<style>
+		canvas {
+			margin: 2px 2px 0 2px;
+			border: 5px solid black;
+			height:100%;
+		}
+		#box {
+			position: fixed;
+			display: inline;
+
+			top: 10px;
+			left: 10px;
+
+			height: 50px;
+			width: 50px;
+			padding: 10px;
+			
+			border: 3px solid red;
+			border-radius: 10px;
+			
+			color: white;
+			background-color: black;
+			
+		}
+
+	</style>
+</head>
+<body>
+	
+	<canvas></canvas>
+	<script>
+
+		window.addEventListener("load", function() {
+		var canvas = document.querySelector("canvas");
+		canvas.width = window.innerWidth - 35;
+		canvas.height = window.innerHeight - 35;
+
+		var c = canvas.getContext("2d");
+				
+		var radius = 30
+		var x = radius
+		var y = radius
+		var dx = 5
+		var dy = 5
+
+            var color = [{c: 0, i:1}, {c: 0, i:1}, {c: 0, i:1}]
+        var ic = 1
+		function Animate() {
+			requestAnimationFrame(Animate)
+
+			//c.clearRect(0, 0, canvas.width, canvas.height)
+			c.beginPath()
+			c.arc(x, y, radius, 0, Math.PI*2, false)
+			c.strokeStyle = "red"
+            c.fillStyle = `rgb(${color[0].c}, ${color[1].c}, ${color[2].c})`
+			c.stroke()
+            c.fill()
+			if( x + radius > canvas.width || x < radius) dx = -dx
+			if( y + radius > canvas.height || y < radius) dy = -dy
+			x += dx
+			y += dy
+            /*
+            if (color[0]%257 < 256){
+                color[0] = color[0] + ic
+            }
+            else if (color[1] < 256) {
+                color[1] = color[1] + ic
+            }
+            else if (color[2] < 256) {
+                color[2] = color[2] + ic
+            }
+            if (color[2] == 256) {
+                ic *= -1
+            }*/
+            for (let i=0;i<3;i++) {
+                let c = color[i].c + color[i].i
+                if (c > 255 || c < 0) {
+                    color[i].i *= -1
+                }
+                else if (c == 255) {
+                    // color[i].c = color[i].c + color[i].i
+                    continue
+                }
+                else {
+                    color[i].c = color[i].c + color[i].i
+                    break
+                }
+            }
+            console.log(color[0].c, color[1].c, color[2].c)
+		}
+
+		Animate()
+		});
+	</script>
+	<!-- script>
+	const box = document.createElement('div');
+
+	box.style.cssText = `position: absolute;
+		width: 50px;
+		height: 50px;
+		padding: 10px;
+		margin: 10px;
+		border: 3px solid grey;
+		border-radius: 10px;
+		background-color: #000;`;
+
+	document.body.appendChild(box);
+	</script -->
+</body>
+</html>
