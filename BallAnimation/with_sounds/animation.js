@@ -4,11 +4,11 @@ canvas.height = window.innerHeight - 35;
 
 var c = canvas.getContext("2d");
 
-var radius = 10
+var radius = 23
 var x = radius
 var y = radius
 var dx = 6.42
-var dy = 15
+var dy = 6
 //dx = 5
 //dy = 5
 //var dx = 7
@@ -23,7 +23,7 @@ class Circle {
     constructor(x, y, radius, fillColor, strokeColor) {
         this.x = x
         this.y = y
-        this.fillColor = fillColor
+        // this.fillColor = fillColor
         this.strokeColor = strokeColor
         this.radius = radius
     }
@@ -34,6 +34,7 @@ class Circle {
         c.beginPath()
         c.arc(this.x, this.y, this.radius, 0, Math.PI*2, false)
         c.fillStyle = this.fillColor
+        c.strokeStyle = this.strokeColor
         c.fill()
         c.stroke()
     }
