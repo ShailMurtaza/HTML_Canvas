@@ -27,9 +27,9 @@ class Ball {
 		this.update()
 	}
 
-	update() {
-		this.pos.x += this.speed.x
-		this.pos.y += this.speed.y
+	update(delta_t) {
+		this.pos.x += this.speed.x * delta_t
+		this.pos.y += this.speed.y * delta_t
 
 		if (this.pos.x + this.radius >= canvas.width) {
 			this.speed.x *= -1
@@ -148,7 +148,7 @@ class Game {
 		}
 	}
 
-	update() {
+	update(delta_t) {
 		if (this.key_left) {
 			this.paddle.move(this.paddle.x - this.paddle_speed)
 		}
@@ -157,15 +157,15 @@ class Game {
 		}
 		ctx.clearRect(0, 0, canvas.width, canvas.height)
 		this.check()
-		this.ball.update()
+		this.ball.update(delta_t)
 		this.paddle.update()
-		this.inc_speed()
+		this.inc_speed(delta_t)
 	}
 
-	inc_speed() {
+	inc_speed(delta_t) {
 		this.ball.speed.x += this.ball.speed.x * 0.001
 		this.ball.speed.y += this.ball.speed.y * 0.001
-		this.paddle_speed += this.paddle_speed * 0.001
+		this.paddle_speed += this.paddle_speed * 0.001 * delta_t
 	}
 
 	update_score(game) {
@@ -179,14 +179,18 @@ class Game {
 }
 
 var game = new Game()
-
+var time = new Date()
 function animate() {
-	game.update()
-	requestAnimationFrame(animate)
+    var new_time = new Date()
+    let delta_t = (new_time.getTime() - time.getTime()) / 15
+    time = new_time
+	game.update(delta_t)
+    requestAnimationFrame(animate)
 }
 
 
 requestAnimationFrame(animate)
+// setInterval(animate, 100)
 
 document.onkeydown = (e)=> {
 	let key = e.key
@@ -207,4 +211,4 @@ document.onkeyup = (e)=> {
 		game.key_left = false
 	}
 }
-// setInterval(animate, 1000)
+
