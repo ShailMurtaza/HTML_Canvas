@@ -14,10 +14,11 @@ var colors = [
 
 
 class Ball {
-    constructor(pos, radius, speed, color) {
+    constructor(pos, radius, speed, force, color) {
         this.pos = pos
         this.radius = radius
         this.speed = speed
+        this.force = force
         this.color = color
         this.pointer = false
     }
@@ -64,6 +65,10 @@ class Ball {
     }
 }
 
+function deg_to_rad(a) {
+    return a * Math.PI/180 * -1
+}
+
 class Gravity {
     constructor(objects, g) {
         this.objects = objects
@@ -73,27 +78,30 @@ class Gravity {
     update() {
         this.objects.forEach(
             (obj)=> {
-                let angle = 335 * Math.PI/180 * -1
-                let pos_x = obj.pos.x + obj.speed.x * Math.cos(angle)
-                let pos_y = obj.pos.y + obj.speed.y * Math.sin(angle)
+                let force_dir_1 = {x: Math.cos(deg_to_rad(270)), y: Math.sin(deg_to_rad(270))}
+                let force_dir_2 = {x: Math.cos(deg_to_rad(150)), y: Math.sin(deg_to_rad(150))}
+                let pos_x = obj.pos.x + obj.speed.x * force_dir_1.x + ( obj.force.x * force_dir_2.x )
+                let pos_y = obj.pos.y + obj.speed.y * force_dir_1.y + ( obj.force.y * force_dir_2.y )
                 obj.move(pos_x, pos_y)
                 let coll = obj.update()
                 if  (coll.y) {
                     obj.speed.y *= -0.7
-                    obj.speed.x *= 0.9
+                    obj.force.y *= -0.9
                 }
                 if (coll.x) {
                     obj.speed.y *= 0.99
-                    obj.speed.x *= -0.7
+                    obj.force.x *= -0.7
                 }
                 obj.speed.y += this.g
+                obj.force.y *= 0.9
+                obj.force.x *= 0.99
             }
         )
     }
 }
 
-function newBall(coor, radius, speed, color) {
-    let ball =  new Ball(coor, radius, speed, color)
+function newBall(coor, radius, speed, force, color) {
+    let ball =  new Ball(coor, radius, speed, force, color)
     ball_array.push(ball)
 }
 
@@ -103,11 +111,12 @@ function mouseMove(event) {
     pointer.move(x, y)
 }
 
-function mouseClick(event) {
+function mouseClick() {
     let color = getColor()
     let coor = {x: pointer.pos.x, y:pointer.pos.y}
-    let speed = {x: 10, y: 10}
-    newBall(coor, pointer.radius, speed, color)
+    let speed = {x: 0, y: 10}
+    let force = {x: 10, y: 50}
+    newBall(coor, pointer.radius, speed, force, color)
 }
 
 function getColor() {
