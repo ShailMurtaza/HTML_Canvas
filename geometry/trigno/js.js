@@ -18,7 +18,7 @@ function line(ctx, x1, y1, x2, y2, color, line_width=2) {
     ctx.moveTo(x1, y1)
     ctx.lineTo(x2, y2)
     ctx.strokeStyle = color
-    ctx.lineWidth = line_width
+    ctx.lineWidth = line_width + 0.5
     ctx.stroke()
 }
 
